@@ -1,8 +1,8 @@
 #include<iostream>
-#include <vector>
-#include <cmath>
+#include<vector>
+#include<cmath>
 #include<random>
-#include <iomanip>
+#include<iomanip>
 #include<tuple>
 #include<algorithm>
 #include<cstdlib>
@@ -12,11 +12,10 @@
 #include<NTL/matrix.h>
 #include<NTL/vector.h>
 #include<NTL/LLL.h>
+#pragma GCC target("avx2")
 #define EPSILON 1e-6
 
-using namespace std;
-
-bool vector_not_equal(const vector<double> x, const vector<double> y){
+bool vector_not_equal(const std::vector<double> x, const std::vector<double> y){
   int n = x.size();
   for(int i = 0; i < n; ++i){
     if(fabs(x.at(i) - y.at(i)) > EPSILON)return true;
@@ -24,7 +23,7 @@ bool vector_not_equal(const vector<double> x, const vector<double> y){
   return false;
 }
 
-bool not_included(const vector<double> x, const vector<vector<double>> vecs){
+bool not_included(const std::vector<double> x, const std::vector<std::vector<double>> vecs){
   int n = vecs.size();
   if(n == 0)return true;
   for(int i = 0; i < n; ++i){
@@ -33,70 +32,70 @@ bool not_included(const vector<double> x, const vector<vector<double>> vecs){
   return false;
 }
 
-vector<double> zero_vector_RR(const int n){
-  vector<double> z(n);
+std::vector<double> zero_vector_RR(const int n){
+  std::vector<double> z(n);
   return z;
 }
 
-vector<int> zero_vector_ZZ(const int n){
-  vector<int> z(n);
+std::vector<int> zero_vector_ZZ(const int n){
+  std::vector<int> z(n);
   return z;
 }
 
 /*Generates all combinations of n 0 and 1*/
-vector<vector<int>> vector_all(const int n){
-  vector<int> tmp(n), v(n);
-  vector<vector<int>> v_all;
+std::vector<std::vector<int>> vector_all(const int n){
+  std::vector<int> tmp(n), v(n);
+  std::vector<std::vector<int>> v_all;
   for(int i = 0; i < n; ++i){
     tmp.at(i) = 1; v = tmp;
-    do v_all.push_back(v); while(next_permutation(v.begin(), v.end()));
+    do v_all.push_back(v); while(std::next_permutation(v.begin(), v.end()));
   }
   return v_all;
 }
 
 /*Tests v is zero-vector or not*/
-bool is_zero(const vector<int> v){
+bool is_zero(const std::vector<int> v){
   int n = v.size();
   for(int i = 0; i < n; ++i) if(v.at(i) != 0) return false;
   return true;
 }
 
 /*Generates an identity matrices*/
-vector<vector<double>> identity_mat(const int n){
-  vector<vector<double>> A(n, vector<double>(n));
+std::vector<std::vector<double>> identity_mat(const int n){
+  std::vector<std::vector<double>> A(n, std::vector<double>(n));
   for(int i = 0; i < n; ++i) A.at(i).at(i) = 1.0;
   return A;
 }
 
 /*Generates an identity matrices*/
-vector<vector<int>> identity_mat_int(const int n){
-  vector<vector<int>> A(n, vector<int>(n));
+std::vector<std::vector<int>> identity_mat_int(const int n){
+  std::vector<std::vector<int>> A(n, std::vector<int>(n));
   for(int i = 0; i < n; ++i) A.at(i).at(i) = 1;
   return A;
 }
 
 #if 0
 /*Prints a matrices A*/
-void print_mat(const vector<vector<auto>> A){
-  cout << "[\n";
+void print_mat(const std::vector<std::vector<auto>> A){
+  std::cout << "[\n";
   for(int i = 0; i < A.size(); ++i){
-    cout << "[";
-    for(int j = 0; j < A.at(0).size(); ++j) cout << A.at(i).at(j) << " ";
-    cout << "]" << endl;
+    std::cout << "[";
+    for(int j = 0; j < A.at(0).size(); ++j) std::cout << A.at(i).at(j) << " ";
+    std::cout << "]" << std::endl;
   }
-  cout << "]\n";
+  std::cout << "]\n";
 }
 
 /*Prints a vector v*/
-void print_vec(const vector<auto> v){
-  cout << "[";
-  for(int i = 0; i < v.size(); ++i) cout << v.at(i) << " ";
-  cout << "]\n";
+void print_vec(const std::vector<auto> v){
+  std::cout << "[";
+  for(int i = 0; i < v.size(); ++i) std::cout << v.at(i) << " ";
+  std::cout << "]\n";
 }
 #endif
 
 /*Computes inner product of vectors x and y*/
-double dot(const vector<double> x, const vector<double> y)
+double dot(const std::vector<double> x, const std::vector<double> y)
 {
   double z = 0.0;
   int n = x.size();
@@ -105,10 +104,10 @@ double dot(const vector<double> x, const vector<double> y)
 }
 
 /*Computes transpose matrices of A*/
-vector<vector<int>> trans(const vector<vector<int>> A)
+std::vector<std::vector<int>> trans(const std::vector<std::vector<int>> A)
 {
   int n = A.at(0).size(), m = A.size();
-  vector<vector<int>> B(n, vector<int>(m));
+  std::vector<std::vector<int>> B(n, std::vector<int>(m));
   for(int i = 0; i < n; ++i){
     for(int j = 0; j < m; ++j) B.at(i).at(j) = A.at(j).at(i);
   }
@@ -116,20 +115,18 @@ vector<vector<int>> trans(const vector<vector<int>> A)
 }
 
 /*Computes transpose matrices of A*/
-vector<vector<double>> trans_RR(const vector<vector<double>> A)
+std::vector<std::vector<double>> trans_RR(const std::vector<std::vector<double>> A)
 {
   int n = A.at(0).size(), m = A.size();
-  vector<vector<double>> B(n, vector<double>(m));
-  for(int i = 0; i < n; ++i){
-    for(int j = 0; j < m; ++j) B.at(i).at(j) = A.at(j).at(i);
-  }
+  std::vector<std::vector<double>> B(n, std::vector<double>(m));
+  for(int i = 0; i < n; ++i) for(int j = 0; j < m; ++j) B.at(i).at(j) = A.at(j).at(i);
   return B;
 }
 
 /*Computes product of matrices and vectors*/
-vector<double> mul_vec_mat(const vector<double> x, const vector<vector<double>> A){
+std::vector<double> mul_vec_mat(const std::vector<double> x, const std::vector<std::vector<double>> A){
   int m = A.at(0).size(), n = x.size();
-  vector<double> v(m);
+  std::vector<double> v(m);
   for(int i = 0; i < m; ++i){
     for(int j = 0; j < n; ++j)v.at(i) += x.at(j) * A.at(j).at(i);
   }
@@ -137,10 +134,10 @@ vector<double> mul_vec_mat(const vector<double> x, const vector<vector<double>> 
 }
 
 /*Computes product of two matriceses*/
-vector<vector<double>> mul_mat(const vector<vector<double>> A, const vector<vector<double>> B)
+std::vector<std::vector<double>> mul_mat(const std::vector<std::vector<double>> A, const std::vector<std::vector<double>> B)
 {
   int n = A.size(), m = B.at(0).size(), l = B.size();
-  vector<vector<double>> C(n, vector<double>(m));
+  std::vector<std::vector<double>> C(n, std::vector<double>(m));
   for(int i = 0; i < n; ++i){
     for(int j = 0; j < m; ++j){
       for(int k = 0; k < l; ++k) C.at(i).at(j) += A.at(i).at(k) * B.at(k).at(j);
@@ -150,13 +147,13 @@ vector<vector<double>> mul_mat(const vector<vector<double>> A, const vector<vect
 }
 
 /*Preparation of Gaussian elimination over Z/2Z*/
-bool have_1(const vector<int> v, const int j){
+bool have_1(const std::vector<int> v, const int j){
   for(int i = 0; i < j; ++i) if(v.at(i) == 1) return true;
   return false;
 }
 
 /*Gaussian elimination of augumented matrices over Z/2Z*/
-void aug_gauss_mod2(vector<vector<int>>& A, vector<vector<int>>& B){
+void aug_gauss_mod2(std::vector<std::vector<int>>& A, std::vector<std::vector<int>>& B){
   int s, n = A.size(), m = A.at(0).size();
   bool flag;
   for(int i = 0; i < n; ++i){
@@ -185,9 +182,9 @@ void aug_gauss_mod2(vector<vector<int>>& A, vector<vector<int>>& B){
 }
 
 /*Computes basises of kaernel of matrices A mod 2*/
-vector<vector<int>> kernel_basis(const vector<vector<int>> A){
+std::vector<std::vector<int>> kernel_basis(const std::vector<std::vector<int>> A){
   int n = A.at(0).size();
-  vector<vector<int>> B = trans(A), E = identity_mat_int(n), ker;
+  std::vector<std::vector<int>> B = trans(A), E = identity_mat_int(n), ker;
   aug_gauss_mod2(B, E);
   
   for(int i = 0; i < n; ++i){
@@ -197,12 +194,12 @@ vector<vector<int>> kernel_basis(const vector<vector<int>> A){
 }
 
 /*Computes all elements in kernel of A*/
-vector<vector<int>> kernel_mod2(const vector<vector<int>> A){
-  vector<vector<int>> ker_basis = kernel_basis(A), v_all, ker;
+std::vector<std::vector<int>> kernel_mod2(const std::vector<std::vector<int>> A){
+  std::vector<std::vector<int>> ker_basis = kernel_basis(A), v_all, ker;
   
   /*Computes all basis vectors of a kernel of A*/
   int d = ker_basis.size(), m = ker_basis.at(0).size();
-  vector<int> tmp(m);
+  std::vector<int> tmp(m);
   v_all = vector_all(d);
   
   /*Computes all linear combinations of basis vector of kernel of A modulo 2*/
@@ -217,22 +214,22 @@ vector<vector<int>> kernel_mod2(const vector<vector<int>> A){
 }
 
 /*Computes inverse matrices of M*/
-vector<vector<double>> mat_inv(vector<vector<double>> M){
-  vector<vector<double>> X;
+std::vector<std::vector<double>> mat_inv(std::vector<std::vector<double>> M){
+  std::vector<std::vector<double>> X;
   int n = M.size(), m = M.at(0).size();
   NTL::mat_ZZ A, A_inv;
   NTL::ZZ d;
   A.SetDims(n, m);
   for(int i = 0; i < n; ++i) for(int j = 0; j < m; ++j) A[i][j] = NTL::conv<NTL::ZZ>(M.at(i).at(j));
   NTL::inv(d, A_inv, A);
-  double e = 1.0 / conv<double>(d);
+  double e = 1.0 / NTL::conv<double>(d);
   for(int i = 0; i < n; ++i) for(int j = 0; j < m; ++j) M.at(i).at(j) = NTL::conv<double>(A_inv[i][j]) * e;
   return M;
 }
 
 /*Eratosthenes' sieve algorithm*/
-vector<int> esieve(const int M){
-  vector<int> v(M); v.at(0) = 1;
+std::vector<int> esieve(const int M){
+  std::vector<int> v(M); v.at(0) = 1;
   int s = 1, p = s + 1, t, k;
   while(p * p <= M){
     t = s;
@@ -244,8 +241,8 @@ vector<int> esieve(const int M){
     for(k = 1; k < M; ++k) if(v.at(s + k) == 0) break;
     s += k; p = s + 1;
   }
-  vector<int> p_vec {};
-  vector<int>::iterator it;
+  std::vector<int> p_vec {};
+  std::vector<int>::iterator it;
   it = p_vec.begin();
   for(int i = M - 1; i >= 0; --i){
     if(v.at(i) == 0) it = p_vec.insert(it, i + 1);
@@ -254,9 +251,9 @@ vector<int> esieve(const int M){
 }
 
 /*Generates factor basis*/
-vector<int> factor_basis(const int n){
+std::vector<int> factor_basis(const int n){
   int M = round(n * log(n));
-  vector<int> p_list;
+  std::vector<int> p_list;
   while(true){
     p_list = esieve(M);
     if(p_list.size() >= n){
@@ -268,9 +265,9 @@ vector<int> factor_basis(const int n){
 }
 
 /*Gram_Schmidt's orthogonalization algorithm*/
-tuple<vector<vector<double>>, vector<vector<double>>> Gram_Schmidt(const vector<vector<double>> b){
+std::tuple<std::vector<std::vector<double>>, std::vector<std::vector<double>>> Gram_Schmidt(const std::vector<std::vector<double>> b){
   int n = b.size(), m = b.at(0).size();
-  vector<vector<double>> GSOb(n, vector<double>(m)), mu = identity_mat(n);
+  std::vector<std::vector<double>> GSOb(n, std::vector<double>(m)), mu = identity_mat(n);
   for(int i = 0; i < n; ++i){
     for(int j = 0; j < m; ++j) GSOb.at(i).at(j) = b.at(i).at(j);
     for(int j = 0; j < i; ++j){
@@ -278,14 +275,14 @@ tuple<vector<vector<double>>, vector<vector<double>>> Gram_Schmidt(const vector<
       for(int k = 0; k < m; ++k) GSOb.at(i).at(k) -= mu.at(i).at(j) * GSOb.at(j).at(k);
     }
   }
-  return forward_as_tuple(GSOb, mu);
+  return std::forward_as_tuple(GSOb, mu);
 }
 
 /*Gram_Schmidt's orthogonalization algorithm*/
-tuple<vector<double>, vector<vector<double>>> Gram_Schmidt_squared(const vector<vector<double>> b){
+std::tuple<std::vector<double>, std::vector<std::vector<double>>> Gram_Schmidt_squared(const std::vector<std::vector<double>> b){
   int n = b.size(), m = b.at(0).size();
-  vector<double> B(n);
-  vector<vector<double>> GSOb(n, vector<double>(m)), mu = identity_mat(n);
+  std::vector<double> B(n);
+  std::vector<std::vector<double>> GSOb(n, std::vector<double>(m)), mu = identity_mat(n);
   for(int i = 0; i < n; ++i){
     for(int j = 0; j < m; ++j) GSOb.at(i).at(j) = b.at(i).at(j);
     for(int j = 0; j < i; ++j){
@@ -294,12 +291,12 @@ tuple<vector<double>, vector<vector<double>>> Gram_Schmidt_squared(const vector<
     }
     B.at(i) = dot(GSOb.at(i), GSOb.at(i));
   }
-  return forward_as_tuple(B, mu);
+  return std::forward_as_tuple(B, mu);
 }
 
-vector<vector<double>> LLL_reduce(const vector<vector<double>> b, const float delta){
+std::vector<std::vector<double>> LLL_reduce(const std::vector<std::vector<double>> b, const float delta){
   int n = b.size(), m = b.at(0).size();
-  vector<vector<double>> B(n, vector<double>(m));
+  std::vector<std::vector<double>> B(n, std::vector<double>(m));
   NTL::Mat<NTL::ZZ> c; c.SetDims(n, m);
   for(int i = 0; i < n; ++i) for(int j = 0; j < m; ++j) c[i][j] = NTL::conv<NTL::ZZ>(b.at(i).at(j));
   NTL::LLL_FP(c, delta);
@@ -307,22 +304,22 @@ vector<vector<double>> LLL_reduce(const vector<vector<double>> b, const float de
   return B;
 }
 
-vector<vector<double>> BKZ_reduce(const vector<vector<double>> b, const int beta, const float delta){
+std::vector<std::vector<double>> BKZ_reduce(const std::vector<std::vector<double>> b, const int beta, const float delta){
   int n = b.size(), m = b.at(0).size();
   NTL::Mat<NTL::ZZ> c; c.SetDims(n, m);
-  vector<vector<double>> B(n, vector<double>(m));
+  std::vector<std::vector<double>> B(n, std::vector<double>(m));
   for(int i = 0; i < n; ++i) for(int j = 0; j < m; ++j) c[i][j] = NTL::conv<NTL::ZZ>(b.at(i).at(j));
   NTL::BKZ_FP(c, delta, beta);
   for(int i = 0; i < n; ++i) for(int j = 0; j < m; ++j) B.at(i).at(j) = NTL::conv<double>(c[i][j]);
   return B;
 }
 
-vector<double> Babai(const vector<vector<double>> b, const vector<double> w){
-  vector<vector<double>> GSOb, mu;
+std::vector<double> Babai(const std::vector<std::vector<double>> b, const std::vector<double> w){
+  std::vector<std::vector<double>> GSOb, mu;
   int n = b.size(), m = w.size();
-  vector<double> t = w, v(m);
+  std::vector<double> t = w, v(m);
   double c;
-  tie(GSOb, mu) = Gram_Schmidt(b);
+  std::tie(GSOb, mu) = Gram_Schmidt(b);
   for(int i = n - 1; i >= 0; --i){
     c = round(dot(t, GSOb.at(i)) / dot(GSOb.at(i), GSOb.at(i)));
     for(int j = 0; j < m; ++j)t.at(j) -= c * GSOb.at(i).at(j);
@@ -331,45 +328,45 @@ vector<double> Babai(const vector<vector<double>> b, const vector<double> w){
   return v;
 }
 
-double babai_error(const vector<vector<double>> b, const vector<double> w){
-  vector<double> t = Babai(b, w), error_vec(w.size());
+double babai_error(const std::vector<std::vector<double>> b, const std::vector<double> w){
+  std::vector<double> t = Babai(b, w), error_vec(w.size());
   int n = error_vec.size();
   for(int i = 0; i < n; ++i) error_vec.at(i) = t.at(i) - w.at(i);
   return sqrt(dot(error_vec, error_vec));
 }
 
 /*Converts coefficient vector to lattice vector*/
-vector<double> coef2lat(const vector<auto> v, const vector<vector<auto>> b){
+std::vector<double> coef2lat(const std::vector<auto> v, const std::vector<std::vector<auto>> b){
   int n = b.size(), m = b.at(0).size();
-  vector<double> x(m);
+  std::vector<double> x(m);
   for(int i = 0; i < n; ++i){
     for(int j = 0; j < m; ++j) x.at(j) += v.at(i) * b.at(i).at(j);
   }
   return x;
 }
 
-vector<double> coef2ldlat(const vector<auto> v, const vector<vector<auto>> b){
+std::vector<double> coef2ldlat(const std::vector<auto> v, const std::vector<std::vector<auto>> b){
   int n = b.size(), m = b.at(0).size();
-  vector<double> x(m);
+  std::vector<double> x(m);
   for(int i = 0; i < n; ++i){
     for(int j = 0; j < m; ++j) x.at(j) += v.at(i) * b.at(i).at(j);
   }
   return x;
 }
 
-vector<double> lat2coef(const vector<auto> v, const vector<vector<auto>> b){
+std::vector<double> lat2coef(const std::vector<auto> v, const std::vector<std::vector<auto>> b){
   int n = b.size();
-  vector<double> x(n);
+  std::vector<double> x(n);
   for(int i = 0; i < n; ++i) x.at(i) = v.at(i) / b.at(i).at(i);
   return x;
 }
 
 /*Enumerates closest vectors*/
-vector<double> ENUM_CVP(const vector<vector<double>> mu, const vector<double> B, const double R, const vector<double> a){
+std::vector<double> ENUM_CVP(const std::vector<std::vector<double>> mu, const std::vector<double> B, const double R, const std::vector<double> a){
   int n = B.size(), k;
-  vector<vector<double>> sigma(n + 2, vector<double>(n + 1)), CVP_list;
-  vector<int> r(n + 1), w(n + 1);
-  vector<double> c(n + 1), rho(n + 2), v(n + 1), x(n), u;
+  std::vector<std::vector<double>> sigma(n + 2, std::vector<double>(n + 1)), CVP_list;
+  std::vector<int> r(n + 1), w(n + 1);
+  std::vector<double> c(n + 1), rho(n + 2), v(n + 1), x(n), u;
   v.at(1) = 1;
   for(int i = 0; i <= n; ++i) r.at(i) = i;
   for(k = n; k >= 1; --k){
@@ -388,7 +385,7 @@ vector<double> ENUM_CVP(const vector<vector<double>> mu, const vector<double> B,
         return x;
       }
       --k;
-      r.at(k - 1) = max(r.at(k - 1), r.at(k));
+      r.at(k - 1) = fmax(r.at(k - 1), r.at(k));
       for(int i = r.at(k); i >= k + 1; --i) sigma.at(i).at(k) = sigma.at(i + 1).at(k) + (a.at(i - 1) - v.at(i)) * mu.at(i - 1).at(k - 1);
       c.at(k) = a.at(k - 1) + sigma.at(k + 1).at(k);
       v.at(k) = round(c.at(k));
@@ -407,10 +404,10 @@ vector<double> ENUM_CVP(const vector<vector<double>> mu, const vector<double> B,
 }
 
 /*Generates coefficient vectors of close vectors*/
-vector<vector<double>> ENUM_CVP_all(const vector<vector<double>> mu, const vector<double> B, double R, const vector<double> a, const vector<double> t, const vector<vector<double>> b){
+std::vector<std::vector<double>> ENUM_CVP_all(const std::vector<std::vector<double>> mu, const std::vector<double> B, double R, const std::vector<double> a, const std::vector<double> t, const std::vector<std::vector<double>> b){
   int n = B.size(), m = t.size();
-  vector<vector<double>> CVP_list;
-  vector<double> ENUM_CVP_v(n), pre_ENUM_CVP_v(n), x(n), c, d(m);
+  std::vector<std::vector<double>> CVP_list;
+  std::vector<double> ENUM_CVP_v(n), pre_ENUM_CVP_v(n), x(n), c, d(m);
   while(true){
     for(int i = 0; i < n; ++i) pre_ENUM_CVP_v.at(i) = ENUM_CVP_v.at(i);
     ENUM_CVP_v = ENUM_CVP(mu, B, R, a);
@@ -428,15 +425,15 @@ vector<vector<double>> ENUM_CVP_all(const vector<vector<double>> mu, const vecto
 /******************************************
 主要なsub-routine始め
 *******************************************/
-vector<vector<double>> imp_prime_mat(const double c, const vector<int> p, const int n){
-  vector<vector<double>> A(n, vector<double>(n + 1));
-  vector<double> diag(n);//対角成分
+std::vector<std::vector<double>> imp_prime_mat(const double c, const std::vector<int> p, const int n){
+  std::vector<std::vector<double>> A(n, std::vector<double>(n + 1));
+  std::vector<double> diag(n);//対角成分
 
   for(int i = 0; i < n; ++i) diag.at(i) = ceil((i + 1) * 0.5);
 
-  random_device seed_gen;
-  mt19937_64 engine(seed_gen());
-  shuffle(diag.begin(), diag.end(), engine); //乱数的に並び替え
+  std::random_device seed_gen;
+  std::mt19937_64 engine(seed_gen());
+  std::shuffle(diag.begin(), diag.end(), engine); //乱数的に並び替え
 
   if(c == 5.0){
     for(int i = 0; i < n; ++i){
@@ -454,8 +451,8 @@ vector<vector<double>> imp_prime_mat(const double c, const vector<int> p, const 
 }
 
 /*Generates a target vector*/
-vector<double> target(const NTL::ZZ N, const double c, const int n){
-  vector<double> t(n + 1);
+std::vector<double> target(const NTL::ZZ N, const double c, const int n){
+  std::vector<double> t(n + 1);
   if(c == 5.0){
     t.at(n) = round(100000 * log(N));
   }else{
@@ -464,7 +461,7 @@ vector<double> target(const NTL::ZZ N, const double c, const int n){
   return t;
 }
 
-bool sr_test(const NTL::ZZ u, const NTL::ZZ v, const NTL::ZZ N, const vector<int> p, const int n){
+bool sr_test(const NTL::ZZ u, const NTL::ZZ v, const NTL::ZZ N, const std::vector<int> p, const int n){
   NTL::ZZ a = u - N * v, r;
   for(int i = 0; i < n; ++i){
     r = NTL::conv<NTL::ZZ>(p.at(i + 1));
@@ -479,26 +476,20 @@ bool sr_test(const NTL::ZZ u, const NTL::ZZ v, const NTL::ZZ N, const vector<int
 *******************************************/
 
 
-
 /******************************************
 素因数分解
 *******************************************/
-int main(int argc, char **argv){
-  int loop_times = 0, num = 0, n, K, e1, e2, s;
+int main(const int argc, const char **argv){
+  bool new_pair = false;
+  int loop_times = 0, num = 0, e1, e2, s, n = atoi(argv[2]), K = 2 * n * n;
   double c = 5.0;
-  NTL::ZZ X, Y, q, N, a, u, v, U;
-  vector<double> B, w, t, e;
-  vector<vector<double>> BB, mu, close_vecs, L;
-  N = NTL::conv<NTL::ZZ>(argv[1]);
-  n = ceil(log2(NTL::conv<double>(N))) / (1.5 * log(ceil(log2(NTL::conv<double>(N))) * 0.6666667));
-  if(argc >= 3) n = atoi(argv[2]);
+  NTL::ZZ X, Y, q, a, u, v, U, N = NTL::conv<NTL::ZZ>(argv[1]);
+  std::vector<double> B, w, t, e;
+  std::vector<std::vector<double>> BB, mu, close_vecs, L;
   if(argc >= 4) c = atof(argv[3]);
 
-  K = 2 * n * n;
-  vector<int> vec(K), ee(K), p = factor_basis(K);
-  vector<vector<int>> kernel, A, prekernel;
-
-  cout << "Dimension = " << n << "\nNumber of primes = " << K << "\nN = " << N << "\nbit size = " << ceil(log2(conv<double>(N))) << endl;
+  std::vector<int> vec(K), ee(K), p = factor_basis(K);
+  std::vector<std::vector<int>> kernel, prekernel, A(K, std::vector<int>(K));
 
   while(true){
     ++loop_times;
@@ -510,7 +501,7 @@ int main(int argc, char **argv){
     /*Reduces lattice basis*/
     if(n > 30) BB = BKZ_reduce(L, 20, 0.99);else BB = LLL_reduce(L, 0.99);
 
-    tie(B, mu) =  Gram_Schmidt_squared(BB);
+    std::tie(B, mu) =  Gram_Schmidt_squared(BB);
     
     /*Composition of coefficient vectors of target vectors*/
     w = mul_vec_mat(t, mul_mat(trans_RR(BB), mat_inv(mul_mat(BB, trans_RR(BB)))));
@@ -536,7 +527,7 @@ int main(int argc, char **argv){
           q = NTL::conv<NTL::ZZ>(p.at(j + 1));
           
           /*Computes exponents of p_{j} that is prime factor of u*/
-          if(j < n)while(U % q == 0 && U != 0){++e1; U /= q;}
+          if(j < n) while(U % q == 0 && U != 0){++e1; U /= q;}
           
           /*Computes exponents of p_{j} that is prime factor of a=u-vN*/
           a = u - v * N;
@@ -545,44 +536,49 @@ int main(int argc, char **argv){
         }
         
         /*Appends exponential vector of each prime factor to A*/
-        if(find(A.begin(), A.end(), vec) == A.end()){
-          ++num;
+        if(std::find(A.begin(), A.end(), vec) == A.end()){
+          if(num < K) A.at(num) = vec;else A.push_back(vec);
+          ++num; new_pair = true;
           printf("%d spair were found. (%d pairs are needed.)\n",num, K);
-          A.push_back(vec);//Append to A
+          //A.push_back(vec);//Append to A
         }
       }
     }
 
     /*prime factorization*/
-    if(A.size() >= K){
-      ee = zero_vector_ZZ(K);
-      kernel = kernel_mod2(trans(A)); s = kernel.size();
-      for(int i = 0; i < prekernel.size(); ++i)prekernel.at(i).resize(kernel.at(0).size());
+    if(new_pair){
+      if(num >= K){
+        ee = zero_vector_ZZ(K);
+        kernel = kernel_mod2(trans(A)); s = kernel.size();
+        for(int i = 0; i < prekernel.size(); ++i)prekernel.at(i).resize(kernel.at(0).size());
 
-      if(kernel != prekernel){
-      /*Verifies any t = T that satisfies\sum_{j=1}^{ee.size()}t_j(e_{i.j}-e'_{i.j})=0(mod\ 2)*/
-        for(int i = 0; i < s; ++i){
-          if(find(prekernel.begin(), prekernel.end(), kernel.at(i)) == prekernel.end()){
-            for(int j = 0; j < K; ++j){
-              if(kernel.at(i).at(j) == 1) for(int k = 0; k < K; ++k) ee.at(k) += A.at(j).at(k);
-            }
-            X = Y = 1;
-            for(int j = 0; j < K; ++j){
-              if(ee.at(j) > 0) X = NTL::MulMod(X, NTL::PowerMod(NTL::conv<NTL::ZZ>(p.at(j + 1)), NTL::conv<NTL::ZZ>((int)ee.at(j) / 2), N), N);
-              else if(ee.at(j) < 0) Y = NTL::MulMod(Y, NTL::PowerMod(NTL::conv<NTL::ZZ>(p.at(j + 1)), NTL::conv<NTL::ZZ>(-(int)ee.at(j) / 2), N), N);
-            }
-            cout << "X = " << X << ", Y = " << Y << endl;
-            if(X != Y) q = NTL::GCD(X - Y, N);else q = NTL::GCD(X + Y, N);
+        if(kernel != prekernel){
+        /*Verifies any t = T that satisfies\sum_{j=1}^{ee.size()}t_j(e_{i.j}-e'_{i.j})=0(mod\ 2)*/
+          for(int i = 0; i < s; ++i){
+            if(std::find(prekernel.begin(), prekernel.end(), kernel.at(i)) == prekernel.end()){
+              for(int j = 0; j < K; ++j){
+                if(kernel.at(i).at(j) == 1) for(int k = 0; k < K; ++k) ee.at(k) += A.at(j).at(k);
+              }
+              X = Y = 1;
+              for(int j = 0; j < K; ++j){
+                if(ee.at(j) > 0) X = NTL::MulMod(X, NTL::PowerMod(NTL::conv<NTL::ZZ>(p.at(j + 1)), NTL::conv<NTL::ZZ>((int)ee.at(j) / 2), N), N);
+                else if(ee.at(j) < 0) Y = NTL::MulMod(Y, NTL::PowerMod(NTL::conv<NTL::ZZ>(p.at(j + 1)), NTL::conv<NTL::ZZ>(-(int)ee.at(j) / 2), N), N);
+              }
+              std::cout << "X = " << X << ", Y = " << Y << std::endl;
+              if(X != Y) q = NTL::GCD(X - Y, N);else q = NTL::GCD(X + Y, N);
 
-            if(1 < q && q < N){
-              cout << "c = " << c << ", beta = 2\nN = " << q << " * " << N / q << "\nloop times = " << loop_times << "\nnumber of sr-pairs = " << num << endl;
-              return 0;
+              if(1 < q && q < N){
+                printf("==============================\nN = "); std::cout << N;
+                printf(", bit size = %.0f\nc = %.1f, beta = 2.0\nN = %lu * %lu\nloop times = %d\nnumber of sr-pairs = %d\n==============================", ceil(log2(NTL::conv<double>(N))), c, NTL::conv<long>(q), NTL::conv<long>(N / q), loop_times, num);
+                return 0;
+              }
+              ee = zero_vector_ZZ(K);
             }
-            ee = zero_vector_ZZ(K);
           }
+          prekernel = kernel;
         }
-        prekernel = kernel;
       }
+      new_pair = false;
     }
   }
 }
