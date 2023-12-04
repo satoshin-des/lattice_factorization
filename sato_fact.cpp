@@ -479,7 +479,7 @@ bool sr_test(const NTL::ZZ u, const NTL::ZZ v, const NTL::ZZ N, const std::vecto
 /******************************************
 素因数分解
 *******************************************/
-int main(const int argc, const char **argv){
+int main(int argc, char **argv){
   bool new_pair = false;
   int loop_times = 0, num = 0, e1, e2, s, n = atoi(argv[2]), K = 2 * n * n;
   double c = 5.0;
