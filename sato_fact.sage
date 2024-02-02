@@ -1,28 +1,31 @@
 from fpylll import *
 from time import perf_counter
 from datetime import datetime
-import random
+from random import seed, shuffle
 import numpy as np
 
 #=============================
-#Generates an n-bits semiprime
+# Generates an n-bits semiprime
 #=============================
 def gen_semiprime(n):
 	while 1:
 		p = next_prime(randint(2 ^ ((n - 1) // 2), 2 ^ ((n + 1) // 2)))
 		q = next_prime(randint(2 ^ ((n - 3) // 2), 2 ^ ((n + 1) // 2)))
 		N = p * q
-		if(N.nbits() == n):
+		if N.nbits() == n and p != q:
 			return N
 
+#===================
+# Input an integer N
+#===================
 N = ZZ(input("N = "))
 if N < 100:
 	N = gen_semiprime(N)
 R = Integers(N)
 
-start = perf_counter()
-
-f = False
+#==========================
+# Set a rank of the lattice
+#==========================
 bit_size = N.nbits()
 if bit_size >= 40:
 	n = round(2.2 * bit_size / log(bit_size) - 8); m = n + 1
@@ -30,25 +33,34 @@ else:
 	n = 15; m = 16
 J = n * n
 K = J + J
-J = K * 0.666
+J = (K + K) // 3
 
-#A list of prime numbers.
+#=================================
+# Generate a list of prime numbers
+#=================================
 Prime = Primes()
 P = np.array([-1] + prime_range(Prime.unrank(K)))
 Q = P; P = vector(ZZ, P)
-B_right = np.array([np.ceil(100000 * np.log(P[1 : n + 1]))]).T
-S = np.ceil(np.arange(1, m) * 0.6)
 
-#Construction of a target vector
+#================================
+# Construction of a target vector
+#================================
 t = vector(ZZ, m); t[n] = ceil(100000 * log(N))
 
-List = []; r = 0; num = 0; loop_times = 0; already_list = []
+B_right = np.array([np.ceil(100000 * np.log(P[1 : n + 1]))]).T
+S = np.ceil(np.arange(1, m) * 0.6)
+List = []; num = 0; loop_times = 0; already_list = []; f = False
+
+start = perf_counter()
+#=============================
+# Main factorization algorithm
+#=============================
 while True:
 	loop_times += 1
 	# Construction of lattice basis
-	random.seed(datetime.now().timestamp()); random.shuffle(S)
+	seed(datetime.now().timestamp()); shuffle(S)
 	C = Matrix(ZZ, np.hstack([np.diag(S), B_right]))
-	B = IntegerMatrix.from_matrix(copy(C))
+	B = IntegerMatrix.from_matrix(C)
 
 	# Lattice basis reduction
 	LLL.reduction(B)
@@ -59,10 +71,9 @@ while True:
 
 	# Solving approximate CVP
 	radius = (vector(ZZ, B.multiply_left(w)) - t).norm() ^ 2
-	solutions = []
+	#solutions = []
 	enum = Enumeration(M, strategy = EvaluatorStrategy.BEST_N_SOLUTIONS, nr_solutions = 20)
 	solutions = enum.enumerate(0, n, radius, 0, M.from_canonical(t))
-	
 	for _, b in solutions:
 		b = IntegerMatrix.from_iterable(1, B.nrows, map(lambda x: int(round(x)), b)); w = b * B
 		e = C.solve_left(vector(w[0]))
@@ -81,25 +92,26 @@ while True:
 		T = u - v * N
 		LT = np.array(factor(T))
 		Lu = np.array(factor(u))
-		L = LT.T
-		if len(set(L[0]) - set(P)) == 0:# Smoothness check
-			vec = vector(ZZ, K)
-			for j in range(K):
-				p = P[j + 1]
-				e1 = e2 = 0
-				if mod(u, p) == 0:
-					index = np.where(Lu == p)
-					e1 = Lu[index[0][0]][1]
-				if mod(T, p) == 0:
-					index = np.where(LT == p)
-					e2 = LT[index[0][0]][1]
-				vec[j] = e2 - e1
-			if vec not in List:
-				num += 1
-				print(num, "sr-pairs are found. (K =", K, ")")
-				List.append(vec)
+		L = LT.T; M = Lu.T
+		if len(L) > 0:
+			if set(L[0]) - set(P) == set():# Smoothness check
+				vec = zero_vector(ZZ, K)
+				for p in np.r_[L[0], M[0]]:
+					e1 = e2 = 0
+					j = np.where(P == p); j = j[0][0]
+					if p in M[0]:
+						index = np.where(Lu == p)
+						e1 = Lu[index[0][0]][1]
+					if p in L[0]:
+						index = np.where(LT == p)
+						e2 = LT[index[0][0]][1]
+					vec[j - 1] = e2 - e1
+				if vec not in List:
+					num += 1
+					print(num, "sr-pairs are found. u =", u,", v =", v)
+					List.append(vec)
 
-	if num >= J:
+	if num >= 1:
 		AA = Matrix(GF(2), List)
 		r = AA.rank()
 		if len(List) > r:
@@ -115,12 +127,18 @@ while True:
 						ee = np.array(ee) // 2
 						PositiveIndex = np.where(ee > 0)
 						NegativeIndex = np.where(ee < 0)
-						primes_for_X = Q[PositiveIndex[0] + 1]
-						primes_for_Y = Q[NegativeIndex[0] + 1]
-						X_factor = (primes_for_X ^ ee[PositiveIndex[0]]) % N
-						Y_factor = primes_for_Y ^ (-ee[NegativeIndex[0]]) % N
-						X = prod(vector(R, X_factor))
-						Y = prod(vector(R, Y_factor))
+						#primes_for_X = Q[PositiveIndex[0] + 1]
+						#primes_for_Y = Q[NegativeIndex[0] + 1]
+						#X_factor = primes_for_X ^ ee[PositiveIndex[0]]
+						#Y_factor = primes_for_Y ^ (-ee[NegativeIndex[0]])
+						#X = prod(vector(R, X_factor))
+						#Y = prod(vector(R, Y_factor))
+
+						X = Y = R(1)
+						for j in PositiveIndex[0]:
+							X *= R(P[j + 1]) ^ ee[j]
+						for j in NegativeIndex[0]:
+							Y *= R(P[j + 1]) ^ (-ee[j])
 
 						print("X =", X, ", Y =", Y)
 						if X != Y:
@@ -128,7 +146,7 @@ while True:
 						else:
 							p = gcd(ZZ(X + Y), N)
 						if 1 < p < N:
-							print("==============================\nN = ", N, ", bit size = ", N.nbits(), "\nc = 5, beta = 2.0\nN = ", p, " * ", N / p, "\nloop times = ", loop_times, "\nnumber of sr-pairs = ", num, "\n==============================")
+							print("==============================\nN = ", N, ", bit size = ", bit_size, "\nc = 5, beta = 2.0\nN = ", p, " * ", N / p, "\nloop times = ", loop_times, "\nnumber of sr-pairs = ", num, "\n==============================")
 							f = True; break
 					if f:
 						break
