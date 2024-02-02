@@ -15,12 +15,6 @@ def gen_semiprime(n):
 		if(N.nbits() == n):
 			return N
 
-def DivisionCount(N, p):
-	if mod(N, p) != 0:
-		return 0
-	if mod(N, p) == 0:
-		return 1 + DivisionCount(N // p, p)
-
 N = ZZ(input("N = "))
 if N < 100:
 	N = gen_semiprime(N)
@@ -69,7 +63,7 @@ while True:
 	enum = Enumeration(M, strategy = EvaluatorStrategy.BEST_N_SOLUTIONS, nr_solutions = 20)
 	solutions = enum.enumerate(0, n, radius, 0, M.from_canonical(t))
 	
-	for a, b in solutions:
+	for _, b in solutions:
 		b = IntegerMatrix.from_iterable(1, B.nrows, map(lambda x: int(round(x)), b)); w = b * B
 		e = C.solve_left(vector(w[0]))
 		e = np.array(e)
@@ -85,20 +79,25 @@ while True:
 		v = prod(vector(ZZ, v_factor))
 		
 		T = u - v * N
-		L = np.array(factor(T)).T
+		LT = np.array(factor(T))
+		Lu = np.array(factor(u))
+		L = LT.T
 		if len(set(L[0]) - set(P)) == 0:# Smoothness check
 			vec = vector(ZZ, K)
 			for j in range(K):
 				p = P[j + 1]
-				e1 = DivisionCount(u, p)
-				e2 = DivisionCount(T, p)
+				e1 = e2 = 0
+				if mod(u, p) == 0:
+					index = np.where(Lu == p)
+					e1 = Lu[index[0][0]][1]
+				if mod(T, p) == 0:
+					index = np.where(LT == p)
+					e2 = LT[index[0][0]][1]
 				vec[j] = e2 - e1
 			if vec not in List:
 				num += 1
 				print(num, "sr-pairs are found. (K =", K, ")")
 				List.append(vec)
-				#AA = Matrix(GF(2), List)
-				#r = AA.rank()
 
 	if num >= J:
 		AA = Matrix(GF(2), List)
@@ -122,8 +121,7 @@ while True:
 						Y_factor = primes_for_Y ^ (-ee[NegativeIndex[0]]) % N
 						X = prod(vector(R, X_factor))
 						Y = prod(vector(R, Y_factor))
-						#X = XY_product(P, ee, K - 1, R, positive = True)
-						#Y = XY_product(P, ee, K - 1, R, positive = False)
+
 						print("X =", X, ", Y =", Y)
 						if X != Y:
 							p = gcd(ZZ(X - Y), N)
