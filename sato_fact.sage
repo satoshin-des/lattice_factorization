@@ -12,15 +12,13 @@ def gen_semiprime(n):
 		p = next_prime(randint(2 ^ ((n - 1) // 2), 2 ^ ((n + 1) // 2)))
 		q = next_prime(randint(2 ^ ((n - 3) // 2), 2 ^ ((n + 1) // 2)))
 		N = p * q
-		if N.nbits() == n and p != q:
-			return N
+		if N.nbits() == n and p != q: return N
 
 #===================
 # Input an integer N
 #===================
 N = ZZ(input("N = "))
-if N < 100:
-	N = gen_semiprime(N)
+if N < 100: N = gen_semiprime(N)
 R = Integers(N)
 
 #==========================
@@ -49,13 +47,15 @@ t = vector(ZZ, m); t[n] = ceil(100000 * log(N))
 
 B_right = np.array([np.ceil(100000 * np.log(P[1 : n + 1]))]).T
 S = np.ceil(np.arange(1, m) * 0.6)
-List = []; num = 0; loop_times = 0; already_list = []; f = False
+#S = np.ones(n); S[0 : n // 8] = 4; S[n // 8 : n // 4] = 3; S[n // 4 : n // 2] = 2
+#S = np.ceil(np.sqrt(10 * np.log(np.arange(1, m))))
+List = []; num = 0; loop_times = 0; already_list = []; f: bool = False; r = 0
 
 start = perf_counter()
 #=============================
 # Main factorization algorithm
 #=============================
-while True:
+for _ in range(factorial(n) // 2):
 	loop_times += 1
 	# Construction of lattice basis
 	seed(datetime.now().timestamp()); shuffle(S)
@@ -68,16 +68,13 @@ while True:
 	
 	# Babai's algorithm 
 	w = M.babai(t)
-
 	# Solving approximate CVP
-	radius = (vector(ZZ, B.multiply_left(w)) - t).norm() ^ 2
-	#solutions = []
-	enum = Enumeration(M, strategy = EvaluatorStrategy.BEST_N_SOLUTIONS, nr_solutions = 20)
-	solutions = enum.enumerate(0, n, radius, 0, M.from_canonical(t))
+	radius = (vector(ZZ, B.multiply_left(w)) - t).norm()
+	enum = Enumeration(M, strategy = EvaluatorStrategy.BEST_N_SOLUTIONS)
+	solutions = enum.enumerate(0, n, radius * radius + 1, 0, M.from_canonical(t))
 	for _, b in solutions:
 		b = IntegerMatrix.from_iterable(1, B.nrows, map(lambda x: int(round(x)), b)); w = b * B
-		e = C.solve_left(vector(w[0]))
-		e = np.array(e)
+		e = C.solve_left(vector(w[0])); e = np.array(e)
 		
 		# Construction of (u, v)-pairs
 		PositiveIndex = np.where(e > 0)
@@ -88,13 +85,13 @@ while True:
 		v_factor = primes_for_v ^ (-e[NegativeIndex[0]])
 		u = prod(vector(ZZ, u_factor))
 		v = prod(vector(ZZ, v_factor))
-		
-		T = u - v * N
-		LT = np.array(factor(T))
+
+		#T = u - v * N
+		LT = np.array(factor(u - v * N))
 		Lu = np.array(factor(u))
 		L = LT.T; M = Lu.T
 		if len(L) > 0:
-			if set(L[0]) - set(P) == set():# Smoothness check
+			if set(L[0]) <= set(P):# Smoothness check
 				vec = zero_vector(ZZ, K)
 				for p in np.r_[L[0], M[0]]:
 					e1 = e2 = 0
@@ -108,50 +105,52 @@ while True:
 					vec[j - 1] = e2 - e1
 				if vec not in List:
 					num += 1
-					print(num, "sr-pairs are found. u =", u,", v =", v)
+					print(num, "sr-pairs are found. u =", u,"v =", v)
 					List.append(vec)
+					AA = Matrix(GF(2), List)
+					r = AA.rank()
 
-	if num >= 1:
-		AA = Matrix(GF(2), List)
-		r = AA.rank()
-		if len(List) > r:
-			V = AA.kernel();
-			for tt in V:
-				if not tt.is_zero():
-					OneIndex = np.where(tt); OneIndex = OneIndex[0]
-					Array = np.array(List); Array = Array[OneIndex]
-					ee = vector(ZZ, Array.sum(axis = 0))
-					if ee not in already_list:
-						already_list.append(ee)
+	if len(List) > r:
+		V = AA.kernel();
+		for tt in V:
+			if not tt.is_zero():
+				OneIndex = np.where(tt); OneIndex = OneIndex[0]
+				Array = np.array(List); Array = Array[OneIndex]
+				ee = vector(ZZ, Array.sum(axis = 0))
+				if ee not in already_list:
+					already_list.append(ee)
 
-						ee = np.array(ee) // 2
-						PositiveIndex = np.where(ee > 0)
-						NegativeIndex = np.where(ee < 0)
-						#primes_for_X = Q[PositiveIndex[0] + 1]
-						#primes_for_Y = Q[NegativeIndex[0] + 1]
-						#X_factor = primes_for_X ^ ee[PositiveIndex[0]]
-						#Y_factor = primes_for_Y ^ (-ee[NegativeIndex[0]])
-						#X = prod(vector(R, X_factor))
-						#Y = prod(vector(R, Y_factor))
+					ee = np.array(ee) // 2
+					PositiveIndex = np.where(ee > 0)
+					NegativeIndex = np.where(ee < 0)
+					#primes_for_X = Q[PositiveIndex[0] + 1]
+					#primes_for_Y = Q[NegativeIndex[0] + 1]
+					#X_factor = primes_for_X ^ ee[PositiveIndex[0]]
+					#Y_factor = primes_for_Y ^ (-ee[NegativeIndex[0]])
+					#X = prod(vector(R, X_factor))
+					#Y = prod(vector(R, Y_factor))
 
-						X = Y = R(1)
-						for j in PositiveIndex[0]:
-							X *= R(P[j + 1]) ^ ee[j]
-						for j in NegativeIndex[0]:
-							Y *= R(P[j + 1]) ^ (-ee[j])
+					X = Y = R(1)
+					for j in PositiveIndex[0]:
+						X *= R(P[j + 1]) ^ ee[j]
+					for j in NegativeIndex[0]:
+						Y *= R(P[j + 1]) ^ (-ee[j])
 
-						print("X =", X, ", Y =", Y)
-						if X != Y:
-							p = gcd(ZZ(X - Y), N)
-						else:
-							p = gcd(ZZ(X + Y), N)
-						if 1 < p < N:
-							print("==============================\nN = ", N, ", bit size = ", bit_size, "\nc = 5, beta = 2.0\nN = ", p, " * ", N / p, "\nloop times = ", loop_times, "\nnumber of sr-pairs = ", num, "\n==============================")
-							f = True; break
-					if f:
-						break
-			if f:
-				break
+					print("X =", X, "Y =", Y)
+					if X != Y:
+						p = gcd(ZZ(X - Y), N)
+					else:
+						p = gcd(ZZ(X + Y), N)
+					if 1 < p < N:
+						print("==============================\nN =", N, ", bit size = ", bit_size, "\nc = 7, beta = 2.0\nN = ", p, "*", N / p, "\nloop times = ", loop_times, "\nnumber of sr-pairs =", num, "\n==============================")
+						f = True; break
+				if f:
+					break
+		if f:
+			break
 
 end = perf_counter()
-print(end - start, "[secs]")
+if f:
+	print(end - start, "[secs]")
+else:
+	print("Factorization failed.")
