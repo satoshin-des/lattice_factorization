@@ -15,7 +15,6 @@
 #include<NTL/matrix.h>
 #include<NTL/vector.h>
 #include<NTL/LLL.h>
-#pragma GCC target("avx2")
 #define EPSILON 0.0000000000000000000000000000001
 
 typedef long long ll;
