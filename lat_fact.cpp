@@ -15,7 +15,6 @@
 #include<NTL/matrix.h>
 #include<NTL/vector.h>
 #include<NTL/LLL.h>
-#define EPSILON 0.0000000000000000000000000000001
 
 typedef long long ll;
 
@@ -47,7 +46,7 @@ std::vector<std::vector<long>> vector_all(const long n){
 }
 
 void GenSemiPrime(NTL::ZZ& n){
-  const int m = NTL::to_int(n) * 0.5, k = NTL::to_int(n);
+  const int m = NTL::to_int(n) / 2, k = NTL::to_int(n);
   for(;;){
     n = NTL::RandomPrime_ZZ(m) * NTL::RandomPrime_ZZ(NTL::to_int(k) - m + 1);
     if(NTL::NumBits(n) == k) break;
