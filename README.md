@@ -1,5 +1,10 @@
 # lattice_factorization
-格子を用いた素因数分解法
+
+このリポジトリに含まれているソースたちは，大学院での研究の際に作成されたものです．以下，その論文：
+<br>[
+近似最近ベクトル探索と埋め込み法を用いた格子による素因数分解法の実装報告](https://www.iwsec.org/scis/2024/program.html#2B4)
+<br>
+[Experimental analysis of integer factorization methods using lattices](https://www.iwsec.org/2024/program.html)
 
 ## NTLライブラリについて
 C++のほうでは，NTLライブラリを使用しています．そのため，これを入れていない場合は実行できません．そのため，NTLライブラリを導入していない場合は
