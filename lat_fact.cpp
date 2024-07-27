@@ -1,40 +1,44 @@
-#include<iostream>
-#include<vector>
-#include<cmath>
-#include<random>
-#include<iomanip>
-#include<tuple>
-#include<algorithm>
-#include<cstdlib>
-#include<string>
-#include<cfloat>
-#include<NTL/ZZ.h>
-#include<NTL/ZZ_p.h>
-#include<NTL/RR.h>
-#include<NTL/mat_ZZ.h>
-#include<NTL/matrix.h>
-#include<NTL/vector.h>
-#include<NTL/LLL.h>
+/**
+ * @file lat_fact.cpp
+ * @author Arata Sato (23lc002y@rikkyo.ac.jp)
+ * @brief Integer factorization using lattices
+ * 
+ */
+
+#include <iostream>
+#include <vector>
+#include <cmath>
+#include <random>
+#include <iomanip>
+#include <tuple>
+#include <algorithm>
+#include <cstdlib>
+#include <NTL/ZZ.h>
+#include <NTL/ZZ_p.h>
+#include <NTL/RR.h>
+#include <NTL/mat_ZZ.h>
+#include <NTL/matrix.h>
+#include <NTL/vector.h>
+#include <NTL/LLL.h>
 
 typedef long long ll;
 
-bool vector_not_equal(const std::vector<ll> x, const std::vector<ll> y){
-  const int n = x.size();
-  for(int i = 0; i < n; ++i) if(x[i] != y[i]) return true;
-  return false;
-}
-
-bool not_included(const std::vector<ll> x, const std::vector<std::vector<ll>> vecs){
-  const int n = vecs.size();
-  if(! n) return true;
-  for(int i = 0; i < n; ++i) if(vector_not_equal(x, vecs[i])) return true;
-  return false;
-}
-
+/**
+ * @brief Creates a zero-vector.
+ * 
+ * @param n Length of the vector
+ * @return std::vector<double> zero-vector whose length is n
+ */
 std::vector<double> zero_vector_RR(const long n){const std::vector<double> z(n); return z;}
 std::vector<long> zero_vector_ZZ(const long n){const std::vector<long> z(n); return z;}
 
-/*Generates all combinations of n 0 and 1*/
+
+/**
+ * @brief Generates all combinations of n 0 and 1
+ * 
+ * @param n length
+ * @return std::vector<std::vector<long>> All conbinations
+ */
 std::vector<std::vector<long>> vector_all(const long n){
   std::vector<long> tmp(n), v(n);
   std::vector<std::vector<long>> v_all;
@@ -45,6 +49,12 @@ std::vector<std::vector<long>> vector_all(const long n){
   return v_all;
 }
 
+
+/**
+ * @brief Generates a random semi-prime number
+ * 
+ * @param n 
+ */
 void GenSemiPrime(NTL::ZZ& n){
   const int m = NTL::to_int(n) / 2, k = NTL::to_int(n);
   for(;;){
@@ -53,21 +63,32 @@ void GenSemiPrime(NTL::ZZ& n){
   }
 }
 
-/*Tests v is zero-vector or not*/
+
+/**
+ * @brief Tests v is zero-vector or not
+ * 
+ * @param v Vector
+ * @return true if v is zero-vector 
+ * @return false if v is non-zero-vector
+ */
 bool is_zero(const std::vector<long> v){
   const int n = v.size();
   for(int i = 0; i < n; ++i) if(v[i] != 0) return false;
   return true;
 }
 
-/*Generates an identity matrices*/
+
+/**
+ * @brief Generates an identity matrix
+ * 
+ * @param n size
+ * @return std::vector<std::vector<double>> identity matrix
+ */
 std::vector<std::vector<double>> identity_mat(const long n){
   std::vector<std::vector<double>> A(n, std::vector<double>(n));
   for(int i = 0; i < n; ++i) A[i][i] = 1.0;
   return A;
 }
-
-/*Generates an identity matrices*/
 std::vector<std::vector<long>> identity_mat_long(const long n){
   std::vector<std::vector<long>> A(n, std::vector<long>(n));
   for(int i = 0; i < n; ++i) A[i][i] = 1;
@@ -75,9 +96,15 @@ std::vector<std::vector<long>> identity_mat_long(const long n){
 }
 
 
-/*Computes inner product of vectors x and y*/
-double dot(const std::vector<ll> x, const std::vector<ll> y){
-  double z = 0.0;
+/**
+ * @brief Computes inner product of vectors x and y
+ * 
+ * @param x a vector
+ * @param y a vector
+ * @return double inner product
+ */
+ll dot(const std::vector<ll> x, const std::vector<ll> y){
+  ll z = 0;
   const int n = x.size();
   for(int i = 0; i < n; ++i) z += x[i] * y[i];
   return z;
@@ -95,7 +122,13 @@ double dot(const std::vector<double> x, const std::vector<double> y){
   return z;
 }
 
-/*Computes transpose matrices of A*/
+
+/**
+ * @brief Computes transpose matrix of A
+ * 
+ * @param A matrix
+ * @return std::vector<std::vector<long>> transposed matrix
+ */
 std::vector<std::vector<long>> trans(const std::vector<std::vector<long>> A){
   const int n = A[0].size(), m = A.size(); int i, j;
   std::vector<std::vector<long>> B(n, std::vector<long>(m));
@@ -109,7 +142,14 @@ std::vector<std::vector<ll>> trans(const std::vector<std::vector<ll>> A){
   return B;
 }
 
-/*Computes product of matrices and vectors*/
+
+/**
+ * @brief Computes product of matrices and vectors
+ * 
+ * @param x vector
+ * @param A matrix
+ * @return std::vector<double> x * A
+ */
 std::vector<double> mul_vec_mat(const std::vector<ll> x, const std::vector<std::vector<double>> A){
   const int m = A[0].size(), n = x.size(); int i, j;
   std::vector<double> v(m);
@@ -204,6 +244,12 @@ std::vector<std::vector<long>> kernel_mod2(const std::vector<std::vector<long>> 
 }
 
 
+/**
+ * @brief Computes inverse matrix
+ * 
+ * @param a Matrix
+ * @return std::vector<std::vector<double>> inverse matrix
+ */
 std::vector<std::vector<double>> InverseMatrix(std::vector<std::vector<double>> a){
   double buf;
   const int n = a.size();
@@ -231,6 +277,12 @@ std::vector<std::vector<double>> InverseMatrix(std::vector<std::vector<double>> 
   return inv_a;
 }
 
+/**
+ * @brief Generates factor basis
+ * 
+ * @param n 
+ * @return std::vector<long> factor basis
+ */
 std::vector<long> factor_basis(const long n){
   NTL::PrimeSeq s;
   long p;
@@ -240,7 +292,13 @@ std::vector<long> factor_basis(const long n){
   return p_list;
 }
 
-/*Gram_Schmidt's orthogonalization algorithm*/
+
+/**
+ * @brief Gram_Schmidt's orthogonalization algorithm
+ * 
+ * @param b 
+ * @return std::tuple<std::vector<std::vector<double>>, std::vector<std::vector<double>>> 
+ */
 std::tuple<std::vector<std::vector<double>>, std::vector<std::vector<double>>> Gram_Schmidt(const std::vector<std::vector<ll>> b){
   const int n = b.size(), m = b[0].size(); int i, j, k;
   std::vector<std::vector<double>> GSOb(n, std::vector<double>(m)), mu = identity_mat(n);
@@ -253,8 +311,6 @@ std::tuple<std::vector<std::vector<double>>, std::vector<std::vector<double>>> G
   }
   return std::forward_as_tuple(GSOb, mu);
 }
-
-/*Gram_Schmidt's orthogonalization algorithm*/
 std::tuple<std::vector<double>, std::vector<std::vector<double>>> Gram_Schmidt_squared(const std::vector<std::vector<ll>> b){
   const int n = b.size(), m = b[0].size(); int i, j, k;
   std::vector<double> B(n);
@@ -270,6 +326,14 @@ std::tuple<std::vector<double>, std::vector<std::vector<double>>> Gram_Schmidt_s
   return std::forward_as_tuple(B, mu);
 }
 
+
+/**
+ * @brief Babai's nearest plane algorithm.
+ * 
+ * @param b lattice basis matrix
+ * @param w vector
+ * @return std::vector<ll> a vector that is approx. solution of CVP for target w.
+ */
 std::vector<ll> Babai(const std::vector<std::vector<ll>> b, const std::vector<ll> w){
   std::vector<std::vector<double>> GSOb, mu;
   const int n = b.size(), m = w.size(); int i, j;
@@ -285,14 +349,28 @@ std::vector<ll> Babai(const std::vector<std::vector<ll>> b, const std::vector<ll
   return v;
 }
 
+/**
+ * @brief Computes error of w and its approx-CVP solution.
+ * 
+ * @param b lattice basis matrix
+ * @param w vector
+ * @return double error of w and Babai's vector
+ */
 double babai_error(const std::vector<std::vector<ll>> b, const std::vector<ll> w){
   std::vector<ll> t = Babai(b, w), error_vec(w.size());
   const int n = error_vec.size();
   for(int i = 0; i < n; ++i) error_vec[i] = t[i] - w[i];
-  return sqrt(dot(error_vec, error_vec));
+  return dot(error_vec, error_vec);
 }
 
 
+/**
+ * @brief Conversion of coefficient and lattice.
+ * 
+ * @param v 
+ * @param b 
+ * @return std::vector<double> 
+ */
 std::vector<double> coef2lat(const std::vector<ll> v, const std::vector<std::vector<ll>> b){
   const int n = b.size(), m = b[0].size(); int i, j;
   std::vector<double> x(m);
@@ -308,14 +386,22 @@ std::vector<double> lat2coef(const std::vector<double> v, const std::vector<std:
   return x;
 }
 
-/*Enumerates closest vectors*/
-std::vector<ll> ENUM_CVP(const std::vector<std::vector<double>> mu, const std::vector<double> B, const double R, const std::vector<double> a){
+
+/**
+ * @brief Find a close vector
+ * 
+ * @param mu GSO-coefficient
+ * @param B squared norm of GSO-vector
+ * @param R bound of enumerate
+ * @param a coefficient of target vector
+ * @return std::vector<ll> 
+ */
+std::vector<ll> ENUM_CVP(const std::vector<std::vector<double>> mu, const std::vector<double> B, double R, const std::vector<double> a){
   const int n = B.size(); int i, k;
   std::vector<std::vector<double>> sigma(n + 1, std::vector<double>(n)), CVP_list;
   std::vector<long> r(n), w(n);
   std::vector<double> c(n), rho(n + 1), u;
   std::vector<ll> v(n), x(n);
-  double R2 = R * R;
   v[0] = 1;
   for(i = 0; i < n; ++i) r[i] = i;
   for(k = n - 1; k >= 0; --k){
@@ -328,10 +414,10 @@ std::vector<ll> ENUM_CVP(const std::vector<std::vector<double>> mu, const std::v
   k = 0;
   for(k = 0; k <= n;){
     rho[k] = rho[k + 1] + (c[k] - v[k]) * (c[k] - v[k]) * B[k];
-    if(rho[k] < R2 || fabs(rho[k] - R2) < DBL_MIN){
+    if(rho[k] <= R){
       if(k == 0) return v;
       --k;
-      r[k] = fmax(r[k], r[k + 1]);
+      r[k] = std::max(r[k], r[k + 1]);
       for(i = r[k]; i > k; --i) sigma[i][k] = sigma[i + 1][k] + (a[i] - v[i]) * mu[i][k];
       c[k] = a[k] + sigma[k + 1][k];
       v[k] = round(c[k]);
@@ -346,25 +432,41 @@ std::vector<ll> ENUM_CVP(const std::vector<std::vector<double>> mu, const std::v
   }
 }
 
-/*Generates coefficient vectors of close vectors*/
+
+/**
+ * @brief Enumerates the closest vector
+ * 
+ * @param mu GSO-coefficient
+ * @param B squared norm of GSO-vector
+ * @param R bound of enumerate
+ * @param a coefficient of target vector
+ * @param t target vector
+ * @param b lattice
+ * @return std::vector<std::vector<ll>> the closest vector for target a
+ */
 std::vector<std::vector<ll>> ENUM_CVP_all(const std::vector<std::vector<double>> mu, const std::vector<double> B, double R, const std::vector<double> a, const std::vector<ll> t, const std::vector<std::vector<ll>> b){
   const int n = B.size(), m = t.size(); int i;
   std::vector<std::vector<ll>> CVP_list;
   std::vector<ll> ENUM_CVP_v(n), pre_ENUM_CVP_v(n), x(n);
-  while(true){
-    for(i = 0; i < n; ++i) pre_ENUM_CVP_v[i] = ENUM_CVP_v[i];
+  for(;;){
+    pre_ENUM_CVP_v = ENUM_CVP_v;
     ENUM_CVP_v = ENUM_CVP(mu, B, R, a);
     if(ENUM_CVP_v.empty()) return CVP_list;
-    if(not_included(ENUM_CVP_v, CVP_list))CVP_list.push_back(ENUM_CVP_v);
+    if(std::find(CVP_list.begin(), CVP_list.end(), ENUM_CVP_v) == CVP_list.end()) CVP_list.push_back(ENUM_CVP_v);
 
     R = R * 0.9;
   }
 }
 
 
-/******************************************
-main sub-routine starts
-*******************************************/
+/**
+ * @brief Generates a prime matrix
+ * 
+ * @param c precision parameter
+ * @param p primes
+ * @param n rank of lattices
+ * @return std::tuple<std::vector<std::vector<ll>>, NTL::mat_ZZ> a prime matrix
+ */
 std::tuple<std::vector<std::vector<ll>>, NTL::mat_ZZ> imp_prime_mat(const double c, const std::vector<long> p, const long n){
   std::vector<std::vector<ll>> A(n, std::vector<ll>(n + 1));
   NTL::mat_ZZ B; B.SetDims(n, n + 1);
@@ -394,7 +496,15 @@ std::tuple<std::vector<std::vector<ll>>, NTL::mat_ZZ> imp_prime_mat(const double
   return std::forward_as_tuple(A, B);
 }
 
-/*Generates a target vector*/
+
+/**
+ * @brief Generates a target vector
+ * 
+ * @param N 
+ * @param c 
+ * @param n 
+ * @return std::vector<ll> 
+ */
 std::vector<ll> target(const NTL::ZZ N, const double c, const long n){
   std::vector<ll> t(n + 1);
   if(c == 5.0) t[n] = round(100000 * NTL::to_double(NTL::log(N)));
@@ -402,6 +512,18 @@ std::vector<ll> target(const NTL::ZZ N, const double c, const long n){
   return t;
 }
 
+
+/**
+ * @brief Test if (u, v) is sr-pair or not.
+ * 
+ * @param u smooth number
+ * @param v smooth number
+ * @param N a composite number
+ * @param p primes
+ * @param n rank of lattice
+ * @return true if (u, v) is sr-pair
+ * @return false if (u, v) is nor sr-pair
+ */
 bool sr_test(const NTL::ZZ u, const NTL::ZZ v, const NTL::ZZ N, const std::vector<long> p, const long n){
   NTL::ZZ a = u - N * v, r;
   for(int i = 0; i < n; ++i){
@@ -411,10 +533,6 @@ bool sr_test(const NTL::ZZ u, const NTL::ZZ v, const NTL::ZZ N, const std::vecto
   if(a == 1 || a == -1) return true;
   return false;
 }
-
-/******************************************
-main sub-routine ends
-*******************************************/
 
 
 /*factorization*/
@@ -442,7 +560,7 @@ int main(int argc, char **argv){
   const std::vector<ll> t = target(N, c, n);
   std::vector<std::vector<ll>> BB(n, std::vector<ll>(m));
 
-  for(bool l = 1; l > 0;){
+  for(;;){
     ++loop_times;
     w = zero_vector_RR(n);
 
@@ -456,7 +574,6 @@ int main(int argc, char **argv){
     std::tie(B, mu) =  Gram_Schmidt_squared(BB);
     
     /*Composition of coefficient vectors of target vectors*/
-    //w = mul_vec_mat(t, mul_mat(trans_RR(BB), mat_inv(mul_mat(BB, trans_RR(BB)))));
     w = mul_vec_mat(t, mul_mat(trans(BB), InverseMatrix(mul_mat(BB, trans(BB)))));
 
     /*Computes approximate solutions of CVP*/
