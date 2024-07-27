@@ -20,6 +20,7 @@
 #include <NTL/matrix.h>
 #include <NTL/vector.h>
 #include <NTL/LLL.h>
+#include <omp.h> 
 
 typedef long long ll;
 
@@ -44,7 +45,7 @@ std::vector<std::vector<long>> vector_all(const long n){
   std::vector<std::vector<long>> v_all;
   for(int i = 0; i < n; ++i){
     tmp[i] = 1; v = tmp;
-    do v_all.push_back(v); while(std::next_permutation(v.begin(), v.end()));
+    do v_all.emplace_back(v); while(std::next_permutation(v.begin(), v.end()));
   }
   return v_all;
 }
@@ -217,7 +218,7 @@ std::vector<std::vector<long>> kernel_basis(const std::vector<std::vector<long>>
   std::vector<std::vector<long>> B = trans(A), E = identity_mat_long(n), ker;
   aug_gauss_mod2(B, E);
   
-  for(int i = 0; i < n; ++i) if(is_zero(B[i])) ker.push_back(E[i]);
+  for(int i = 0; i < n; ++i) if(is_zero(B[i])) ker.emplace_back(E[i]);
   return ker;
 }
 
@@ -237,7 +238,7 @@ std::vector<std::vector<long>> kernel_mod2(const std::vector<std::vector<long>> 
     for(j = 0; j < d; ++j){
       for(k = 0; k < m; ++k) tmp[k] ^= v_all[i][j] * ker_basis[j][k];
     }
-    ker.push_back(tmp);
+    ker.emplace_back(tmp);
     tmp = zero_vector_ZZ(m);
   }
   return ker;
@@ -288,7 +289,7 @@ std::vector<long> factor_basis(const long n){
   long p;
   std::vector<long> p_list = {-1};
 
-  while(p_list.size() <= n) p_list.push_back(s.next());
+  while(p_list.size() <= n) p_list.emplace_back(s.next());
   return p_list;
 }
 
@@ -334,33 +335,17 @@ std::tuple<std::vector<double>, std::vector<std::vector<double>>> Gram_Schmidt_s
  * @param w vector
  * @return std::vector<ll> a vector that is approx. solution of CVP for target w.
  */
-std::vector<ll> Babai(const std::vector<std::vector<ll>> b, const std::vector<ll> w){
+double babai_error(const std::vector<std::vector<ll>> b, const std::vector<ll> w){
   std::vector<std::vector<double>> GSOb, mu;
   const int n = b.size(), m = w.size(); int i, j;
   std::vector<ll> t = w;
-  std::vector<ll> v(m);
   double c;
   std::tie(GSOb, mu) = Gram_Schmidt(b);
   for(i = n - 1; i >= 0; --i){
     c = round(dot(t, GSOb[i]) / dot(GSOb[i], GSOb[i]));
     for(j = 0; j < m; ++j)t[j] -= c * GSOb[i][j];
   }
-  for(i = 0; i < m; ++i)v[i] = w[i] - t[i];
-  return v;
-}
-
-/**
- * @brief Computes error of w and its approx-CVP solution.
- * 
- * @param b lattice basis matrix
- * @param w vector
- * @return double error of w and Babai's vector
- */
-double babai_error(const std::vector<std::vector<ll>> b, const std::vector<ll> w){
-  std::vector<ll> t = Babai(b, w), error_vec(w.size());
-  const int n = error_vec.size();
-  for(int i = 0; i < n; ++i) error_vec[i] = t[i] - w[i];
-  return dot(error_vec, error_vec);
+  return dot(t, t);
 }
 
 
@@ -452,9 +437,9 @@ std::vector<std::vector<ll>> ENUM_CVP_all(const std::vector<std::vector<double>>
     pre_ENUM_CVP_v = ENUM_CVP_v;
     ENUM_CVP_v = ENUM_CVP(mu, B, R, a);
     if(ENUM_CVP_v.empty()) return CVP_list;
-    if(std::find(CVP_list.begin(), CVP_list.end(), ENUM_CVP_v) == CVP_list.end()) CVP_list.push_back(ENUM_CVP_v);
+    if(std::find(CVP_list.begin(), CVP_list.end(), ENUM_CVP_v) == CVP_list.end()) CVP_list.emplace_back(ENUM_CVP_v);
 
-    R = R * 0.9;
+    R *= 0.9;
   }
 }
 
@@ -604,7 +589,7 @@ int main(int argc, char **argv){
         }
 
         if(std::find(A.begin(), A.end(), vec) == A.end()){
-          if(num < K) A[num] = vec;else A.push_back(vec);
+          if(num < K) A[num] = vec;else A.emplace_back(vec);
           ++num; new_pair = true;
           printf("%ld pairs were found. (%ld pairs are needed.)\n",num, K);
         }
@@ -623,7 +608,7 @@ int main(int argc, char **argv){
               for(j = 0; j < K; ++j) if(kernel[i][j] == 1) for(k = 0; k < K; ++k) ee[k] += A[j][k];
 
               if(std::find(already_ee.begin(), already_ee.end(), ee) == already_ee.end()){
-                already_ee.push_back(ee);
+                already_ee.emplace_back(ee);
                 X = Y = 1;
                 for(j = 0; j < K; ++j){
                   if(ee[j] > 0) X *= NTL::conv<NTL::ZZ_p>(NTL::PowerMod(NTL::to_ZZ(p[j + 1]), NTL::to_ZZ(ee[j] / 2), N));
