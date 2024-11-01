@@ -52,7 +52,7 @@ testを実行するのみではなく，自分で色々やったりしてみた�
 
 C++のほうでは，NTLライブラリを使用しています．そのため，これを入れてない場合動かないことがあるかもしれません．そのため，NTLライブラリを導入していなくて正常に動作しない場合は
 ```sh
-$ sudo apt-get install -y libntl-dev
+sudo apt-get install -y libntl-dev
 ```
 でインストールしてください．実はインストールされてましたという場合でも
 ```sh
@@ -67,7 +67,7 @@ libntl-dev is already the newest version (11.5.1-1).
 ### soファイルを作る
 soファイルをご自身でコンパイルして作っていただくことによって解決するかもしれません．この場合，自分で``g++ hoge``などとコマンドを打たずとも，Makefileを実行いただくことでコンパイルできるようになっているので，
 ```sh
-$ make
+make
 ```
 を実行して，libfact.soを生成して下さい．
 ```sh
@@ -78,10 +78,10 @@ g++ -shared -fPIC -O3 -mavx2 -fopenmp -mtune=native -march=native -mfpmath=both 
 
 このとき，
 ```sh
-src/lat_fact.cpp: In function ‘std::vector<long long int> ENUM_CVP(std::vector<std::vector<double> >, std::vector<double>, double, std::vector<double>)’:
-src/lat_fact.cpp:409:1: warning: control reaches end of non-void function [-Wreturn-type]
-  409 | }
-      | ^
+lat_fact.cpp:347:1: warning: non-void function does not return a value in all control paths [-Wreturn-type]
+}
+^
+1 warning generated.
 ```
 
 というwarningがでることがありますが，こちらについては無視していただいて構いません．
