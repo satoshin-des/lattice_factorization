@@ -1,4 +1,6 @@
-import ctypes, math, sys
+import ctypes, math, sys, os, platform
+
+pf = platform.system()
 
 def lat_fact(N: int, input_bit: int = 1, print_info: int = 1) -> list:
     """Integer factorization method using lattices.
@@ -15,7 +17,11 @@ def lat_fact(N: int, input_bit: int = 1, print_info: int = 1) -> list:
         print("Input integer is too small.")
         sys.exit(0)
     else:
-        LatFact = ctypes.cdll.LoadLibrary("./libfact.so")
+        if pf == 'Linux':
+            LatFact = ctypes.cdll.LoadLibrary("./libfact.so")
+        elif pf == 'Windows':
+            os.add_dll_directory(os.getcwd())
+            LatFact = ctypes.cdll.LoadLibrary('lat_fact.dll')
         LatFact.lattice_factorization.restype = ctypes.POINTER(ctypes.c_longlong)
         LatFact.lattice_factorization.argtypes = ctypes.c_int, ctypes.c_double, ctypes.c_int
 

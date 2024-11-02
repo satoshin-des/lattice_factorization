@@ -1,3 +1,6 @@
 *.sage.py
 
 __pycache__/
+.vscode/
+
+Makefile
