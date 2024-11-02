@@ -23,7 +23,7 @@ def lat_fact(N: int, input_bit: int = 1, print_info: int = 1) -> list:
             os.add_dll_directory(os.getcwd())
             LatFact = ctypes.cdll.LoadLibrary('lat_fact.dll')
         LatFact.lattice_factorization.restype = ctypes.POINTER(ctypes.c_longlong)
-        LatFact.lattice_factorization.argtypes = ctypes.c_int, ctypes.c_double, ctypes.c_int
+        LatFact.lattice_factorization.argtypes = ctypes.c_int, ctypes.c_char_p, ctypes.c_int
 
-        a = LatFact.lattice_factorization(input_bit, N, print_info)
+        a = LatFact.lattice_factorization(input_bit, str(N).encode('utf-8'), print_info)
         return int(a[0]), int(a[1])

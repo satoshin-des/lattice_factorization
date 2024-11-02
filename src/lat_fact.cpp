@@ -510,7 +510,7 @@ bool sr_test(const NTL::ZZ u, const NTL::ZZ v, const NTL::ZZ N, const std::vecto
     return false;
 }
 
-extern "C" ll *lattice_factorization(const int bit_flag, const double NN, const int info_flag){
+extern "C" ll *lattice_factorization(const int bit_flag, const char* NN, const int info_flag){
      NTL::RR::SetPrecision(60);
 
     bool new_pair = false;
@@ -524,7 +524,7 @@ extern "C" ll *lattice_factorization(const int bit_flag, const double NN, const 
     std::vector<std::vector<double>> mu;
     std::vector<std::vector<ll>> L, close_vecs;
     NTL::mat_ZZ LL;
-
+    std::cout << NN << std::endl;
     if(bit_flag) GenSemiPrime(N);
     //if(argc >= 4){n = atoi(argv[3]); if(argc >= 5) c = atof(argv[4]); }else
     n = 2.2 * NTL::NumBits(N) / log(NTL::NumBits(N)) - 8;

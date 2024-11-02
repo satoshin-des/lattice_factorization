@@ -44,6 +44,6 @@ std::vector<std::vector<ll>> ENUM_CVP_all(const std::vector<std::vector<double>>
 std::tuple<std::vector<std::vector<ll>>, NTL::mat_ZZ> imp_prime_mat(const double c, const std::vector<long> p, const long n);
 std::vector<ll> target(const NTL::ZZ N, const double c, const long n);
 bool sr_test(const NTL::ZZ u, const NTL::ZZ v, const NTL::ZZ N, const std::vector<long> p, const long n);
-extern "C" ll *lattice_factorization(const int bit_flag, const double NN, const int info_flag);
+extern "C" ll *lattice_factorization(const int bit_flag, const char* NN, const int info_flag);
 
 #endif // !LAT_FACT
